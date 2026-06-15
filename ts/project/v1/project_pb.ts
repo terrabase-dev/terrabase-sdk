@@ -24,51 +24,71 @@ export const file_project_v1_project: GenFile = /*@__PURE__*/
  */
 export type Project = Message<"project.v1.Project"> & {
   /**
+   * The unique ID of the project
+   *
    * @generated from field: string id = 1;
    */
   id: string;
 
   /**
+   * The name of the project
+   *
    * @generated from field: string name = 2;
    */
   name: string;
 
   /**
+   * The source of the project
+   *
    * @generated from field: project.v1.ProjectSource source = 3;
    */
   source: ProjectSource;
 
   /**
+   * The OIDC issuer of the project
+   *
    * @generated from field: string oidc_issuer = 4;
    */
   oidcIssuer: string;
 
   /**
+   * The OIDC subject template of the project
+   *
    * @generated from field: string oidc_subject_template = 5;
    */
   oidcSubjectTemplate: string;
 
   /**
+   * The ID of the team that owns the project
+   *
    * @generated from field: string team_id = 6;
    */
   teamId: string;
 
   /**
+   * The time the project was created
+   *
    * @generated from field: google.protobuf.Timestamp created_at = 7;
    */
   createdAt?: Timestamp;
 
   /**
+   * The user who created the project
+   *
    * @generated from field: string created_by = 8;
    */
   createdBy: string;
 
   /**
+   * The time the project was last updated at
+   *
    * @generated from field: google.protobuf.Timestamp updated_at = 9;
    */
   updatedAt?: Timestamp;
 
   /**
+   * The user who last updated the project
+   *
    * @generated from field: string updated_by = 10;
    */
   updatedBy: string;
@@ -86,26 +106,36 @@ export const ProjectSchema: GenMessage<Project> = /*@__PURE__*/
  */
 export type CreateProjectRequest = Message<"project.v1.CreateProjectRequest"> & {
   /**
+   * The name of the project to create
+   *
    * @generated from field: string name = 1;
    */
   name: string;
 
   /**
+   * The source of the project to create
+   *
    * @generated from field: project.v1.ProjectSource source = 2;
    */
   source: ProjectSource;
 
   /**
+   * The OIDC issuer of the project to create
+   *
    * @generated from field: optional string oidc_issuer = 3;
    */
   oidcIssuer?: string;
 
   /**
+   * The OIDC subject template of the project to create
+   *
    * @generated from field: optional string oidc_subject_template = 4;
    */
   oidcSubjectTemplate?: string;
 
   /**
+   * The ID of the team that owns the project
+   *
    * @generated from field: string team_id = 5;
    */
   teamId: string;
@@ -123,6 +153,8 @@ export const CreateProjectRequestSchema: GenMessage<CreateProjectRequest> = /*@_
  */
 export type CreateProjectResponse = Message<"project.v1.CreateProjectResponse"> & {
   /**
+   * The created project
+   *
    * @generated from field: project.v1.Project project = 1;
    */
   project?: Project;
@@ -140,6 +172,8 @@ export const CreateProjectResponseSchema: GenMessage<CreateProjectResponse> = /*
  */
 export type GetProjectRequest = Message<"project.v1.GetProjectRequest"> & {
   /**
+   * The unique ID of the project
+   *
    * @generated from field: string id = 1;
    */
   id: string;
@@ -157,6 +191,8 @@ export const GetProjectRequestSchema: GenMessage<GetProjectRequest> = /*@__PURE_
  */
 export type GetProjectResponse = Message<"project.v1.GetProjectResponse"> & {
   /**
+   * The project
+   *
    * @generated from field: project.v1.Project project = 1;
    */
   project?: Project;
@@ -174,16 +210,22 @@ export const GetProjectResponseSchema: GenMessage<GetProjectResponse> = /*@__PUR
  */
 export type ListProjectsRequest = Message<"project.v1.ListProjectsRequest"> & {
   /**
+   * The ID of a team to list all projects who are owned by the team
+   *
    * @generated from field: string team_id = 1;
    */
   teamId: string;
 
   /**
+   * The number of projects on each page of results
+   *
    * @generated from field: optional int32 page_size = 2;
    */
   pageSize?: number;
 
   /**
+   * The token to retrieve the next page of results
+   *
    * @generated from field: optional string page_token = 3;
    */
   pageToken?: string;
@@ -201,11 +243,15 @@ export const ListProjectsRequestSchema: GenMessage<ListProjectsRequest> = /*@__P
  */
 export type ListProjectsResponse = Message<"project.v1.ListProjectsResponse"> & {
   /**
+   * A list of projects
+   *
    * @generated from field: repeated project.v1.Project projects = 1;
    */
   projects: Project[];
 
   /**
+   * The token to retrieve the next page of results
+   *
    * @generated from field: optional string next_page_token = 2;
    */
   nextPageToken?: string;
@@ -223,26 +269,36 @@ export const ListProjectsResponseSchema: GenMessage<ListProjectsResponse> = /*@_
  */
 export type UpdateProjectRequest = Message<"project.v1.UpdateProjectRequest"> & {
   /**
+   * The unique ID of the project to update
+   *
    * @generated from field: string id = 1;
    */
   id: string;
 
   /**
+   * The new name of the project
+   *
    * @generated from field: optional string name = 2;
    */
   name?: string;
 
   /**
+   * The new source of the project
+   *
    * @generated from field: optional project.v1.ProjectSource source = 3;
    */
   source?: ProjectSource;
 
   /**
+   * The new OIDC issuer of the project
+   *
    * @generated from field: optional string oidc_issuer = 4;
    */
   oidcIssuer?: string;
 
   /**
+   * The new OIDC subject template of the project
+   *
    * @generated from field: optional string oidc_subject_template = 5;
    */
   oidcSubjectTemplate?: string;
@@ -260,6 +316,8 @@ export const UpdateProjectRequestSchema: GenMessage<UpdateProjectRequest> = /*@_
  */
 export type UpdateProjectResponse = Message<"project.v1.UpdateProjectResponse"> & {
   /**
+   * The updated project
+   *
    * @generated from field: project.v1.Project project = 1;
    */
   project?: Project;
@@ -277,6 +335,8 @@ export const UpdateProjectResponseSchema: GenMessage<UpdateProjectResponse> = /*
  */
 export type DeleteProjectRequest = Message<"project.v1.DeleteProjectRequest"> & {
   /**
+   * The unique ID of the project to delete
+   *
    * @generated from field: string id = 1;
    */
   id: string;
@@ -343,6 +403,8 @@ export const ProjectSourceSchema: GenEnum<ProjectSource> = /*@__PURE__*/
  */
 export const ProjectService: GenService<{
   /**
+   * Create a new project
+   *
    * @generated from rpc project.v1.ProjectService.CreateProject
    */
   createProject: {
@@ -351,6 +413,8 @@ export const ProjectService: GenService<{
     output: typeof CreateProjectResponseSchema;
   },
   /**
+   * Retrieve details about a single project
+   *
    * @generated from rpc project.v1.ProjectService.GetProject
    */
   getProject: {
@@ -359,6 +423,8 @@ export const ProjectService: GenService<{
     output: typeof GetProjectResponseSchema;
   },
   /**
+   * List projects owned by a specific team
+   *
    * @generated from rpc project.v1.ProjectService.ListProjects
    */
   listProjects: {
@@ -367,6 +433,8 @@ export const ProjectService: GenService<{
     output: typeof ListProjectsResponseSchema;
   },
   /**
+   * Change details about a project
+   *
    * @generated from rpc project.v1.ProjectService.UpdateProject
    */
   updateProject: {
@@ -375,6 +443,8 @@ export const ProjectService: GenService<{
     output: typeof UpdateProjectResponseSchema;
   },
   /**
+   * Delete a project
+   *
    * @generated from rpc project.v1.ProjectService.DeleteProject
    */
   deleteProject: {
