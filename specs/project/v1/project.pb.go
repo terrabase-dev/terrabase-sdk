@@ -82,19 +82,29 @@ func (ProjectSource) EnumDescriptor() ([]byte, []int) {
 // A Terrabase project represents a CI/CD pipeline source (e.g. a GitHub repo)
 // that can apply Terraform operations to workspaces via OIDC.
 type Project struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	Id                  string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name                string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Source              ProjectSource          `protobuf:"varint,3,opt,name=source,proto3,enum=project.v1.ProjectSource" json:"source,omitempty"`
-	OidcIssuer          string                 `protobuf:"bytes,4,opt,name=oidc_issuer,json=oidcIssuer,proto3" json:"oidc_issuer,omitempty"`
-	OidcSubjectTemplate string                 `protobuf:"bytes,5,opt,name=oidc_subject_template,json=oidcSubjectTemplate,proto3" json:"oidc_subject_template,omitempty"`
-	TeamId              string                 `protobuf:"bytes,6,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
-	CreatedAt           *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	CreatedBy           string                 `protobuf:"bytes,8,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
-	UpdatedAt           *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	UpdatedBy           string                 `protobuf:"bytes,10,opt,name=updated_by,json=updatedBy,proto3" json:"updated_by,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The unique ID of the project
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// The name of the project
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// The source of the project
+	Source ProjectSource `protobuf:"varint,3,opt,name=source,proto3,enum=project.v1.ProjectSource" json:"source,omitempty"`
+	// The OIDC issuer of the project
+	OidcIssuer string `protobuf:"bytes,4,opt,name=oidc_issuer,json=oidcIssuer,proto3" json:"oidc_issuer,omitempty"`
+	// The OIDC subject template of the project
+	OidcSubjectTemplate string `protobuf:"bytes,5,opt,name=oidc_subject_template,json=oidcSubjectTemplate,proto3" json:"oidc_subject_template,omitempty"`
+	// The ID of the team that owns the project
+	TeamId string `protobuf:"bytes,6,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
+	// The time the project was created
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// The user who created the project
+	CreatedBy string `protobuf:"bytes,8,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	// The time the project was last updated at
+	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	// The user who last updated the project
+	UpdatedBy     string `protobuf:"bytes,10,opt,name=updated_by,json=updatedBy,proto3" json:"updated_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Project) Reset() {
@@ -198,14 +208,19 @@ func (x *Project) GetUpdatedBy() string {
 }
 
 type CreateProjectRequest struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	Name                string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Source              ProjectSource          `protobuf:"varint,2,opt,name=source,proto3,enum=project.v1.ProjectSource" json:"source,omitempty"`
-	OidcIssuer          *string                `protobuf:"bytes,3,opt,name=oidc_issuer,json=oidcIssuer,proto3,oneof" json:"oidc_issuer,omitempty"`
-	OidcSubjectTemplate *string                `protobuf:"bytes,4,opt,name=oidc_subject_template,json=oidcSubjectTemplate,proto3,oneof" json:"oidc_subject_template,omitempty"`
-	TeamId              string                 `protobuf:"bytes,5,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The name of the project to create
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// The source of the project to create
+	Source ProjectSource `protobuf:"varint,2,opt,name=source,proto3,enum=project.v1.ProjectSource" json:"source,omitempty"`
+	// The OIDC issuer of the project to create
+	OidcIssuer *string `protobuf:"bytes,3,opt,name=oidc_issuer,json=oidcIssuer,proto3,oneof" json:"oidc_issuer,omitempty"`
+	// The OIDC subject template of the project to create
+	OidcSubjectTemplate *string `protobuf:"bytes,4,opt,name=oidc_subject_template,json=oidcSubjectTemplate,proto3,oneof" json:"oidc_subject_template,omitempty"`
+	// The ID of the team that owns the project
+	TeamId        string `protobuf:"bytes,5,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateProjectRequest) Reset() {
@@ -274,8 +289,9 @@ func (x *CreateProjectRequest) GetTeamId() string {
 }
 
 type CreateProjectResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Project       *Project               `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The created project
+	Project       *Project `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -318,8 +334,9 @@ func (x *CreateProjectResponse) GetProject() *Project {
 }
 
 type GetProjectRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The unique ID of the project
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -362,8 +379,9 @@ func (x *GetProjectRequest) GetId() string {
 }
 
 type GetProjectResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Project       *Project               `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The project
+	Project       *Project `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -406,10 +424,13 @@ func (x *GetProjectResponse) GetProject() *Project {
 }
 
 type ListProjectsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TeamId        string                 `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
-	PageSize      *int32                 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
-	PageToken     *string                `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The ID of a team to list all projects who are owned by the team
+	TeamId string `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
+	// The number of projects on each page of results
+	PageSize *int32 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
+	// The token to retrieve the next page of results
+	PageToken     *string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -466,9 +487,11 @@ func (x *ListProjectsRequest) GetPageToken() string {
 }
 
 type ListProjectsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Projects      []*Project             `protobuf:"bytes,1,rep,name=projects,proto3" json:"projects,omitempty"`
-	NextPageToken *string                `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3,oneof" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// A list of projects
+	Projects []*Project `protobuf:"bytes,1,rep,name=projects,proto3" json:"projects,omitempty"`
+	// The token to retrieve the next page of results
+	NextPageToken *string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3,oneof" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -518,12 +541,17 @@ func (x *ListProjectsResponse) GetNextPageToken() string {
 }
 
 type UpdateProjectRequest struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	Id                  string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name                *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
-	Source              *ProjectSource         `protobuf:"varint,3,opt,name=source,proto3,enum=project.v1.ProjectSource,oneof" json:"source,omitempty"`
-	OidcIssuer          *string                `protobuf:"bytes,4,opt,name=oidc_issuer,json=oidcIssuer,proto3,oneof" json:"oidc_issuer,omitempty"`
-	OidcSubjectTemplate *string                `protobuf:"bytes,5,opt,name=oidc_subject_template,json=oidcSubjectTemplate,proto3,oneof" json:"oidc_subject_template,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The unique ID of the project to update
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// The new name of the project
+	Name *string `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	// The new source of the project
+	Source *ProjectSource `protobuf:"varint,3,opt,name=source,proto3,enum=project.v1.ProjectSource,oneof" json:"source,omitempty"`
+	// The new OIDC issuer of the project
+	OidcIssuer *string `protobuf:"bytes,4,opt,name=oidc_issuer,json=oidcIssuer,proto3,oneof" json:"oidc_issuer,omitempty"`
+	// The new OIDC subject template of the project
+	OidcSubjectTemplate *string `protobuf:"bytes,5,opt,name=oidc_subject_template,json=oidcSubjectTemplate,proto3,oneof" json:"oidc_subject_template,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -594,8 +622,9 @@ func (x *UpdateProjectRequest) GetOidcSubjectTemplate() string {
 }
 
 type UpdateProjectResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Project       *Project               `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The updated project
+	Project       *Project `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -638,8 +667,9 @@ func (x *UpdateProjectResponse) GetProject() *Project {
 }
 
 type DeleteProjectRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The unique ID of the project to delete
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

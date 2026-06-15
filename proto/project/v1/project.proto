@@ -19,74 +19,126 @@ enum ProjectSource {
 // A Terrabase project represents a CI/CD pipeline source (e.g. a GitHub repo)
 // that can apply Terraform operations to workspaces via OIDC.
 message Project {
+  // The unique ID of the project
   string id = 1;
+
+  // The name of the project
   string name = 2;
+
+  // The source of the project
   ProjectSource source = 3;
+
+  // The OIDC issuer of the project
   string oidc_issuer = 4;
+
+  // The OIDC subject template of the project
   string oidc_subject_template = 5;
+
+  // The ID of the team that owns the project
   string team_id = 6;
+
+  // The time the project was created
   google.protobuf.Timestamp created_at = 7;
+
+  // The user who created the project
   string created_by = 8;
+
+  // The time the project was last updated at
   google.protobuf.Timestamp updated_at = 9;
+
+  // The user who last updated the project
   string updated_by = 10;
 }
 
 message CreateProjectRequest {
+  // The name of the project to create
   string name = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The source of the project to create
   ProjectSource source = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The OIDC issuer of the project to create
   optional string oidc_issuer = 3;
+
+  // The OIDC subject template of the project to create
   optional string oidc_subject_template = 4;
+
+  // The ID of the team that owns the project
   string team_id = 5 [(google.api.field_behavior) = REQUIRED];
 }
 
 message CreateProjectResponse {
+  // The created project
   Project project = 1;
 }
 
 message GetProjectRequest {
+  // The unique ID of the project
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 message GetProjectResponse {
+  // The project
   Project project = 1;
 }
 
 message ListProjectsRequest {
+  // The ID of a team to list all projects who are owned by the team
   string team_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The number of projects on each page of results
   optional int32 page_size = 2;
+
+  // The token to retrieve the next page of results
   optional string page_token = 3;
 }
 
 message ListProjectsResponse {
+  // A list of projects
   repeated Project projects = 1;
+
+  // The token to retrieve the next page of results
   optional string next_page_token = 2;
 }
 
 message UpdateProjectRequest {
+  // The unique ID of the project to update
   string id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The new name of the project
   optional string name = 2;
+
+  // The new source of the project
   optional ProjectSource source = 3;
+
+  // The new OIDC issuer of the project
   optional string oidc_issuer = 4;
+
+  // The new OIDC subject template of the project
   optional string oidc_subject_template = 5;
 }
 
 message UpdateProjectResponse {
+  // The updated project
   Project project = 1;
 }
 
 message DeleteProjectRequest {
+  // The unique ID of the project to delete
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 message DeleteProjectResponse {}
 
 service ProjectService {
+  // Create a new project
   rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {
     option (authz.v1.auth_required) = true;
     option (authz.v1.required_scopes) = SCOPE_ADMIN;
     option (authz.v1.elevation_possible) = true;
   }
 
+  // Retrieve details about a single project
   rpc GetProject(GetProjectRequest) returns (GetProjectResponse) {
     option (authz.v1.auth_required) = true;
     option (authz.v1.required_scopes) = SCOPE_ADMIN;
@@ -94,6 +146,7 @@ service ProjectService {
     option (authz.v1.required_scopes) = SCOPE_WORKSPACE_WRITE;
   }
 
+  // List projects owned by a specific team
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {
     option (authz.v1.auth_required) = true;
     option (authz.v1.required_scopes) = SCOPE_ADMIN;
@@ -101,12 +154,14 @@ service ProjectService {
     option (authz.v1.required_scopes) = SCOPE_WORKSPACE_WRITE;
   }
 
+  // Change details about a project
   rpc UpdateProject(UpdateProjectRequest) returns (UpdateProjectResponse) {
     option (authz.v1.auth_required) = true;
     option (authz.v1.required_scopes) = SCOPE_ADMIN;
     option (authz.v1.elevation_possible) = true;
   }
 
+  // Delete a project
   rpc DeleteProject(DeleteProjectRequest) returns (DeleteProjectResponse) {
     option (authz.v1.auth_required) = true;
     option (authz.v1.required_scopes) = SCOPE_ADMIN;
