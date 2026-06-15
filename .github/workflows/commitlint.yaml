@@ -1,7 +1,8 @@
-name: Lint PR Commits
+name: Lint PR Title
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
     branches:
       - main
 
