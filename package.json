@@ -5,6 +5,9 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
+  "files": [
+    "ts/"
+  ],
   "exports": {
     "./*": "./ts/*"
   }

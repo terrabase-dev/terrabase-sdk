@@ -17,13 +17,13 @@ jobs:
     steps:
       - name: Generate token
         id: bot-token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.TERRABASE_BOT_APP_ID }}
           private-key: ${{ secrets.TERRABASE_BOT_PRIVATE_KEY }}
 
       - id: release
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@v5
         with:
           token: ${{ steps.bot-token.outputs.token }}
           release-type: node
@@ -37,13 +37,13 @@ jobs:
     steps:
       - name: Generate token
         id: bot-token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.TERRABASE_BOT_APP_ID }}
           private-key: ${{ secrets.TERRABASE_BOT_PRIVATE_KEY }}
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ steps.bot-token.outputs.token }}
