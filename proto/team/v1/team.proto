@@ -1,0 +1,225 @@
+syntax = "proto3";
+
+package team.v1;
+
+import "authz/v1/authz.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/terrabase-dev/terrabase-sdk/specs/team/v1;teamv1";
+
+// A Terrabase team belongs to a single organization, and can have many users. Teams should likely strongly correlate with actual business units
+message Team {
+  // The unique ID of the team
+  string id = 1;
+
+  // The name of the team
+  string name = 2;
+
+  // The ID of the organization the team belongs to
+  string organization_id = 3;
+
+  // The team's slug (used in URLs)
+  string slug = 4;
+
+  // The version of the team's logo, if uploaded
+  string logo_version = 5;
+
+  // The time the team was created
+  google.protobuf.Timestamp created_at = 6;
+
+  // The user who created the team
+  string created_by = 7;
+
+  // The time the team was last updated
+  google.protobuf.Timestamp updated_at = 8;
+
+  // The user who last updated the team
+  string updated_by = 9;
+}
+
+message TeamIds {
+  // A list of team IDs
+  repeated string team_ids = 1;
+}
+
+message CreateTeamRequest {
+  // The name of the team
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID of the organization the team belongs to
+  string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The team's slug. A reasonable default will be generated if not provided.
+  string slug = 3;
+}
+
+message CreateTeamResponse {
+  // The team that was created
+  Team team = 1;
+}
+
+message GetTeamRequest {
+  oneof key {
+    // The unique ID of the team
+    string id = 1;
+
+    // The team's slug
+    string slug = 2;
+  }
+}
+
+message GetTeamResponse {
+  // The team
+  Team team = 1;
+}
+
+message ListTeamsRequest {
+  // The number of teams on each page of results
+  optional int32 page_size = 1;
+
+  // The token to retrieve the next page of results
+  optional string page_token = 2;
+}
+
+message ListTeamsResponse {
+  // A list of teams
+  repeated Team teams = 1;
+
+  // The token to retrieve the next page of results
+  optional string next_page_token = 2;
+}
+
+message UpdateTeamRequest {
+  // The unique ID of the team to update
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The new name of the team
+  optional string name = 2;
+
+  // The new slug for the team
+  optional string slug = 3;
+
+  // Used to remove a logo
+  optional string logo_version = 4;
+}
+
+message UpdateTeamResponse {
+  // The updated team
+  Team team = 1;
+}
+
+message DeleteTeamRequest {
+  // The unique ID of the team to delete
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DeleteTeamResponse {}
+
+message GetLogoUploadUrlRequest {
+  // The unique ID of the team to get a presigned URL for to upload its logo
+  string team_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The content type of the logo
+  string content_type = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetLogoUploadUrlResponse {
+  // The presigned URL to upload a team's logo
+  string upload_url = 1;
+
+  // Headers to include when calling the presigned URL
+  map<string, string> headers = 2;
+
+  // The version of the logo (to be used in finalize)
+  string logo_version = 3;
+}
+
+message FinalizeLogoUploadRequest {
+  // The unique ID of the team to finalize the logo upload for
+  string team_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The version of the logo
+  string logo_version = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message FinalizeLogoUploadResponse {
+  // The team
+  Team team = 1;
+}
+
+message GetLogoUrlRequest {
+  // The unique ID of the team to get a presigned URL for to download its logo
+  string team_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetLogoUrlResponse {
+  // The presigned URL to download a team's logo
+  string url = 1;
+}
+
+service TeamService {
+  // Create a new team
+  rpc CreateTeam(CreateTeamRequest) returns (CreateTeamResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_TEAM_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  // Retrieve details about a single team
+  rpc GetTeam(GetTeamRequest) returns (GetTeamResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_TEAM_READ;
+    option (authz.v1.required_scopes) = SCOPE_TEAM_WRITE;
+  }
+
+  // List all teams
+  rpc ListTeams(ListTeamsRequest) returns (ListTeamsResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_TEAM_READ;
+    option (authz.v1.required_scopes) = SCOPE_TEAM_WRITE;
+  }
+
+  // Change details about a team
+  rpc UpdateTeam(UpdateTeamRequest) returns (UpdateTeamResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_TEAM_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  // Delete a team
+  rpc DeleteTeam(DeleteTeamRequest) returns (DeleteTeamResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_TEAM_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  // Get a presigned URL to upload a team's logo
+  rpc GetLogoUploadUrl(GetLogoUploadUrlRequest) returns (GetLogoUploadUrlResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_TEAM_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  // Finalize a logo upload
+  rpc FinalizeLogoUpload(FinalizeLogoUploadRequest) returns (FinalizeLogoUploadResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_TEAM_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  // Get a presigned URL to download a team's logo
+  rpc GetLogoUrl(GetLogoUrlRequest) returns (GetLogoUrlResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_TEAM_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+}

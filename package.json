@@ -1,0 +1,11 @@
+{
+  "name": "@terrabase-dev/terrabase-sdk",
+  "version": "0.1.0",
+  "private": false,
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "exports": {
+    "./*": "./ts/*"
+  }
+}

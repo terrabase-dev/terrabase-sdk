@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package terraform.v1;
+
+import "authz/v1/authz.proto";
+import "backend_config/v1/backend_config.proto";
+import "google/api/field_behavior.proto";
+
+option go_package = "github.com/terrabase-dev/terrabase-sdk/specs/terraform/v1;terraformv1";
+
+message InitRequest {
+  string workspace_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message InitResponse {
+  backend_config.v1.BackendConfig backend_config = 1;
+}
+
+message PlanRequest {
+  string workspace_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message PlanResponse {
+  backend_config.v1.BackendConfig backend_config = 1;
+}
+
+message ApplyRequest {
+  string workspace_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ApplyResponse {
+  backend_config.v1.BackendConfig backend_config = 1;
+}
+
+service TerraformService {
+  rpc Init(InitRequest) returns (InitResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_TERRAFORM_INIT;
+  }
+
+  rpc Plan(PlanRequest) returns (PlanResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_TERRAFORM_PLAN;
+  }
+
+  rpc Apply(ApplyRequest) returns (ApplyResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_TERRAFORM_APPLY;
+  }
+}

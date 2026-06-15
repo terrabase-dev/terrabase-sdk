@@ -1,0 +1,113 @@
+syntax = "proto3";
+
+package project_workspace_policy.v1;
+
+import "authz/v1/authz.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "operation/v1/operation.proto";
+
+option go_package = "github.com/terrabase-dev/terrabase-sdk/specs/project_workspace_policy/v1;projectWorkspacePolicyv1";
+
+enum RefType {
+  REF_TYPE_UNSPECIFIED = 0;
+  REF_TYPE_BRANCH = 1;
+  REF_TYPE_TAG = 2;
+}
+
+// A policy that controls which Terraform operations a project (pipeline) may
+// perform on a specific workspace for a given ref pattern.
+message ProjectWorkspacePolicy {
+  string id = 1;
+  string project_id = 2;
+  string workspace_id = 3;
+  RefType ref_type = 4;
+  string ref_pattern = 5;
+  repeated operation.v1.TerraformOperation allowed_operations = 6;
+  google.protobuf.Timestamp created_at = 7;
+  string created_by = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  string updated_by = 10;
+}
+
+message CreateProjectWorkspacePolicyRequest {
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string workspace_id = 2 [(google.api.field_behavior) = REQUIRED];
+  RefType ref_type = 3 [(google.api.field_behavior) = REQUIRED];
+  string ref_pattern = 4 [(google.api.field_behavior) = REQUIRED];
+  repeated operation.v1.TerraformOperation allowed_operations = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+message CreateProjectWorkspacePolicyResponse {
+  ProjectWorkspacePolicy project_workspace_policy = 1;
+}
+
+message GetProjectWorkspacePolicyRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetProjectWorkspacePolicyResponse {
+  ProjectWorkspacePolicy project_workspace_policy = 1;
+}
+
+message ListProjectWorkspacePoliciesRequest {
+  oneof key {
+    string project_id = 1;
+    string workspace_id = 2;
+  }
+}
+
+message ListProjectWorkspacePoliciesResponse {
+  repeated ProjectWorkspacePolicy project_workspace_policies = 1;
+}
+
+message UpdateProjectWorkspacePolicyRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  optional RefType ref_type = 2;
+  optional string ref_pattern = 3;
+  repeated operation.v1.TerraformOperation allowed_operations = 4;
+}
+
+message UpdateProjectWorkspacePolicyResponse {
+  ProjectWorkspacePolicy project_workspace_policy = 1;
+}
+
+message DeleteProjectWorkspacePolicyRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DeleteProjectWorkspacePolicyResponse {}
+
+service ProjectWorkspacePolicyService {
+  rpc CreateProjectWorkspacePolicy(CreateProjectWorkspacePolicyRequest) returns (CreateProjectWorkspacePolicyResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  rpc GetProjectWorkspacePolicy(GetProjectWorkspacePolicyRequest) returns (GetProjectWorkspacePolicyResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_READ;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_WRITE;
+  }
+
+  rpc ListProjectWorkspacePolicies(ListProjectWorkspacePoliciesRequest) returns (ListProjectWorkspacePoliciesResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_READ;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_WRITE;
+  }
+
+  rpc UpdateProjectWorkspacePolicy(UpdateProjectWorkspacePolicyRequest) returns (UpdateProjectWorkspacePolicyResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  rpc DeleteProjectWorkspacePolicy(DeleteProjectWorkspacePolicyRequest) returns (DeleteProjectWorkspacePolicyResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.elevation_possible) = true;
+  }
+}

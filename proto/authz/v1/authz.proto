@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package authz.v1;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/terrabase-dev/terrabase-sdk/specs/authz/v1;authzv1";
+
+extend google.protobuf.MethodOptions {
+  // Whether or not authentication is required for an endpoint
+  bool auth_required = 50001;
+
+  // A list of scopes that the authenticated user must have in order to access an endpoint. Note that not all scopes listed are necessary- only at least one in order of precedence
+  repeated Scope required_scopes = 50002;
+
+  // Whether or not the endpoint can be access only by an administrator or the user to which the resource(s) accessed in an endpoint belongs
+  bool admin_or_self = 50003;
+
+  // For endpoints that can be accessed by a user to which the resource(s) accessed in the endpoint belongs, the field containing the user's ID
+  string owner_id_field = 50004;
+
+  // Whether or not the user could possibly have elevated permissions to access the resource(s) accessed in an endpoint, thus the user's default scopes should not inherently gate access to the endpoint
+  bool elevation_possible = 50005;
+}
+
+enum Scope {
+  SCOPE_UNSPECIFIED = 0;
+  SCOPE_ADMIN = 1;
+  SCOPE_ORG_WRITE = 2;
+  SCOPE_ORG_READ = 3;
+  SCOPE_TEAM_WRITE = 4;
+  SCOPE_TEAM_READ = 5;
+  SCOPE_APPLICATION_WRITE = 6;
+  SCOPE_APPLICATION_READ = 7;
+  SCOPE_ENVIRONMENT_WRITE = 8;
+  SCOPE_ENVIRONMENT_READ = 9;
+  SCOPE_WORKSPACE_WRITE = 10;
+  SCOPE_WORKSPACE_READ = 11;
+  SCOPE_USER_READ = 12;
+  SCOPE_TERRAFORM_INIT = 13;
+  SCOPE_TERRAFORM_PLAN = 14;
+  SCOPE_TERRAFORM_APPLY = 15;
+}

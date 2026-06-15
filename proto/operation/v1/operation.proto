@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package operation.v1;
+
+option go_package = "github.com/terrabase-dev/terrabase-sdk/specs/operation/v1;operationv1";
+
+enum TerraformOperation {
+  TERRAFORM_OPERATION_UNSPECIFIED = 0;
+  TERRAFORM_OPERATION_INIT = 1;
+  TERRAFORM_OPERATION_PLAN = 2;
+  TERRAFORM_OPERATION_APPLY = 3;
+}

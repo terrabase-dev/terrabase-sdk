@@ -1,0 +1,235 @@
+syntax = "proto3";
+
+package workspace.v1;
+
+import "authz/v1/authz.proto";
+import "backend_config/v1/backend_config.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "s3_backend_config/v1/s3_backend_config.proto";
+import "team/v1/team.proto";
+import "team_workspace_access_grant/v1/team_workspace_access_grant.proto";
+
+option go_package = "github.com/terrabase-dev/terrabase-sdk/specs/workspace/v1;workspacev1";
+
+// A Terrabase workspace represents a single Terraform state file
+message Workspace {
+  // The unique ID of the workspace
+  string id = 1;
+
+  // The name of the workspace
+  string name = 2;
+
+  // The workspace's slug (used in URLs)
+  string slug = 3;
+
+  // The description of the workspace
+  string description = 4;
+
+  // The color of the workspace
+  string color = 5;
+
+  // The type of the backend configuration of the workspace
+  backend_config.v1.BackendType backend_type = 6;
+
+  // The ID of the application environment the workspace belongs to. A workspace does not have to belong to an application environment if it is owned by a team.
+  optional string environment_id = 7;
+
+  // The time the workspace was created
+  google.protobuf.Timestamp created_at = 8;
+
+  // The user who created the workspace
+  string created_by = 9;
+
+  // The time the workspace was last updated at
+  google.protobuf.Timestamp updated_at = 10;
+
+  // The user who last updated the workspace
+  string updated_by = 11;
+}
+
+message CreateWorkspaceRequest {
+  // The name of the workspace
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The workspace's slug. A reasonable default will be generated if not provided.
+  string slug = 2;
+
+  // The description of the workspace
+  optional string description = 3;
+
+  // The color of the workspace
+  optional string color = 4;
+
+  // The type of the backend configuration of the workspace
+  backend_config.v1.BackendType backend_type = 5 [(google.api.field_behavior) = REQUIRED];
+
+  oneof owner {
+    // The ID of the application environment the workspace belongs to. Mutually exclusive with `team_id`. A workspace does not have to belong to an application environment if it is owned by a team.
+    string environment_id = 6;
+
+    // The ID of the team that owns this workspace. Mutually exclusive with `environment_id`. A workspace does not have to be owned by a team if it belongs to an application environment.
+    string team_id = 7;
+  }
+
+  // The S3 backend configuration, if the backend type is S3
+  s3_backend_config.v1.CreateS3BackendConfigRequest s3_backend_config = 8;
+}
+
+message CreateWorkspaceResponse {
+  // The workspace that was created
+  Workspace workspace = 1;
+}
+
+message GetWorkspaceRequest {
+  oneof key {
+    // The unique ID of the workspace
+    string id = 1;
+
+    // The workspace's slug
+    string slug = 2;
+  }
+}
+
+message GetWorkspaceResponse {
+  // The workspace
+  Workspace workspace = 1;
+}
+
+message ListWorkspacesRequest {
+  // The ID of the team to list all workspaces who are owned by the team
+  optional string team_id = 1;
+
+  // The ID of the application to list all workspaces who belong to the application
+  optional string application_id = 2;
+
+  // The number of workspaces on each page of results
+  optional int32 page_size = 3;
+
+  // The token to retrieve the next page of results
+  optional string page_token = 4;
+}
+
+message ListWorkspacesResponse {
+  // A list of workspaces
+  repeated Workspace workspaces = 1;
+
+  // The token to retrieve the next page of results
+  optional string next_page_token = 2;
+}
+
+message UpdateWorkspaceRequest {
+  // The unique ID of the workspace to update
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The new name of the workspace
+  optional string name = 2;
+
+  // The new slug for the workspace
+  optional string slug = 3;
+
+  // The new description of the workspace
+  optional string description = 4;
+
+  // The new color of the workspace
+  optional string color = 5;
+
+  // The new backend type of the workspace
+  optional backend_config.v1.BackendType backend_type = 6;
+
+  // The ID of the application environment the workspace belongs to. Mutually exclusive with `team_id`. A workspace does not have to belong to an application environment if it is owned by a team.
+  optional string environment_id = 7;
+
+  // The ID of the team that owns this workspace. Mutually exclusive with `environment_id`. A workspace does not have to be owned by a team if it belongs to an application environment.
+  optional string team_id = 8;
+
+  // The new S3 backend configuration, if the backend type is S3 and a new configuration needs to be created
+  optional s3_backend_config.v1.CreateS3BackendConfigRequest s3_backend_config = 9;
+}
+
+message UpdateWorkspaceResponse {
+  // The updated workspace
+  Workspace workspace = 1;
+}
+
+message DeleteWorkspaceRequest {
+  // The unique ID of the workspace to delete
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DeleteWorkspaceResponse {}
+
+message GrantTeamAccessRequest {
+  // A list of team access grants
+  repeated team_workspace_access_grant.v1.CreateTeamWorkspaceAccessGrantRequest team_access_grants = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GrantTeamAccessResponse {}
+
+message RevokeTeamAccessRequest {
+  // The unique ID of the workspace
+  string workspace_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // A list of team IDs whose access to the workspace should be revoked
+  team.v1.TeamIds team_ids = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message RevokeTeamAccessResponse {}
+
+service WorkspaceService {
+  // Create a new workspace
+  rpc CreateWorkspace(CreateWorkspaceRequest) returns (CreateWorkspaceResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  // Retrieve details about a single workspace
+  rpc GetWorkspace(GetWorkspaceRequest) returns (GetWorkspaceResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_READ;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_WRITE;
+  }
+
+  // List workspaces owned by a specific team, or belong to a specific application
+  rpc ListWorkspaces(ListWorkspacesRequest) returns (ListWorkspacesResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_READ;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_WRITE;
+  }
+
+  // Change details about a workspace
+  rpc UpdateWorkspace(UpdateWorkspaceRequest) returns (UpdateWorkspaceResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  // Delete a workspace
+  rpc DeleteWorkspace(DeleteWorkspaceRequest) returns (DeleteWorkspaceResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  // Grant access to a workspace to a single team or multiple teams
+  rpc GrantTeamAccess(GrantTeamAccessRequest) returns (GrantTeamAccessResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  // Revoke access to a workspace from a single team or multiple teams
+  rpc RevokeTeamAccess(RevokeTeamAccessRequest) returns (RevokeTeamAccessResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+}

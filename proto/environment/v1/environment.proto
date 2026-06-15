@@ -1,0 +1,159 @@
+syntax = "proto3";
+
+package environment.v1;
+
+import "authz/v1/authz.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "workspace/v1/workspace.proto";
+
+option go_package = "github.com/terrabase-dev/terrabase-sdk/specs/environment/v1;environmentv1";
+
+// A Terrabase environment is a business environment that an application is deployed in
+message Environment {
+  // The unique ID of the environment
+  string id = 1;
+
+  // The name of the environment
+  string name = 2;
+
+  // The ID of the application this environment belongs to
+  string application_id = 3;
+
+  // The description of the environment
+  string description = 4;
+
+  // The color of the environment
+  string color = 5;
+
+  // The time the environment was created
+  google.protobuf.Timestamp created_at = 6;
+
+  // The user who created the environment
+  string created_by = 7;
+
+  // The time the environment was last updated at
+  google.protobuf.Timestamp updated_at = 8;
+
+  // The user who last updated the environment
+  string updated_by = 9;
+}
+
+message EnvironmentSummary {
+  // The environment
+  Environment environment = 1;
+
+  // The environment's workspace
+  workspace.v1.Workspace workspace = 2;
+}
+
+message CreateEnvironmentRequest {
+  // The name of the environment
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID of the application the environment belongs to
+  string application_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The description of the environment
+  optional string description = 3;
+
+  // The color of the environment
+  optional string color = 4;
+
+  // The configuration for the workspace that belongs to this environment
+  workspace.v1.CreateWorkspaceRequest new_workspace = 5;
+}
+
+message CreateEnvironmentResponse {
+  // The environment that was created
+  Environment environment = 1;
+}
+
+message GetEnvironmentRequest {
+  // The unique ID of the environment
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetEnvironmentResponse {
+  // The environment
+  EnvironmentSummary environment_summary = 1;
+}
+
+message ListEnvironmentsRequest {
+  // The ID of the application to list environments for
+  string application_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListEnvironmentsResponse {
+  // A list of environments
+  repeated EnvironmentSummary environment_summaries = 1;
+}
+
+message UpdateEnvironmentRequest {
+  // The unique ID of the environment to update
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The new name of the environment
+  optional string name = 2;
+
+  // The new description of the environment
+  optional string description = 3;
+
+  // The new color of the environment
+  optional string color = 4;
+}
+
+message UpdateEnvironmentResponse {
+  // The updated environment
+  Environment environment = 1;
+}
+
+message DeleteEnvironmentRequest {
+  // The unique ID of the environment to delete
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DeleteEnvironmentResponse {}
+
+service EnvironmentService {
+  // Create a new environment
+  rpc CreateEnvironment(CreateEnvironmentRequest) returns (CreateEnvironmentResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_ENVIRONMENT_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  // Retrieve details about a specific environment
+  rpc GetEnvironment(GetEnvironmentRequest) returns (GetEnvironmentResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_ENVIRONMENT_READ;
+    option (authz.v1.required_scopes) = SCOPE_ENVIRONMENT_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  // List environments that belong to an application
+  rpc ListEnvironments(ListEnvironmentsRequest) returns (ListEnvironmentsResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_ENVIRONMENT_READ;
+    option (authz.v1.required_scopes) = SCOPE_ENVIRONMENT_WRITE;
+  }
+
+  // Change details about an environment
+  rpc UpdateEnvironment(UpdateEnvironmentRequest) returns (UpdateEnvironmentResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_ENVIRONMENT_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  // Delete an environment
+  rpc DeleteEnvironment(DeleteEnvironmentRequest) returns (DeleteEnvironmentResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_ENVIRONMENT_WRITE;
+    option (authz.v1.elevation_possible) = true;
+  }
+}

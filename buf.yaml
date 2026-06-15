@@ -1,0 +1,8 @@
+version: v2
+modules:
+  - path: proto
+lint:
+  enum_zero_value_suffix: _UNSPECIFIED
+  service_suffix: Service
+  ignore:
+    - proto/google/api/field_behavior.proto

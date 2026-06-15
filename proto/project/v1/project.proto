@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+package project.v1;
+
+import "authz/v1/authz.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/terrabase-dev/terrabase-sdk/specs/project/v1;projectv1";
+
+enum ProjectSource {
+  PROJECT_SOURCE_UNSPECIFIED = 0;
+  PROJECT_SOURCE_GITHUB = 1;
+  PROJECT_SOURCE_GITLAB = 2;
+  PROJECT_SOURCE_BITBUCKET = 3;
+  PROJECT_SOURCE_GENERIC = 4;
+}
+
+// A Terrabase project represents a CI/CD pipeline source (e.g. a GitHub repo)
+// that can apply Terraform operations to workspaces via OIDC.
+message Project {
+  string id = 1;
+  string name = 2;
+  ProjectSource source = 3;
+  string oidc_issuer = 4;
+  string oidc_subject_template = 5;
+  string team_id = 6;
+  google.protobuf.Timestamp created_at = 7;
+  string created_by = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  string updated_by = 10;
+}
+
+message CreateProjectRequest {
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+  ProjectSource source = 2 [(google.api.field_behavior) = REQUIRED];
+  optional string oidc_issuer = 3;
+  optional string oidc_subject_template = 4;
+  string team_id = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+message CreateProjectResponse {
+  Project project = 1;
+}
+
+message GetProjectRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetProjectResponse {
+  Project project = 1;
+}
+
+message ListProjectsRequest {
+  string team_id = 1 [(google.api.field_behavior) = REQUIRED];
+  optional int32 page_size = 2;
+  optional string page_token = 3;
+}
+
+message ListProjectsResponse {
+  repeated Project projects = 1;
+  optional string next_page_token = 2;
+}
+
+message UpdateProjectRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  optional string name = 2;
+  optional ProjectSource source = 3;
+  optional string oidc_issuer = 4;
+  optional string oidc_subject_template = 5;
+}
+
+message UpdateProjectResponse {
+  Project project = 1;
+}
+
+message DeleteProjectRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DeleteProjectResponse {}
+
+service ProjectService {
+  rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  rpc GetProject(GetProjectRequest) returns (GetProjectResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_READ;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_WRITE;
+  }
+
+  rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_READ;
+    option (authz.v1.required_scopes) = SCOPE_WORKSPACE_WRITE;
+  }
+
+  rpc UpdateProject(UpdateProjectRequest) returns (UpdateProjectResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.elevation_possible) = true;
+  }
+
+  rpc DeleteProject(DeleteProjectRequest) returns (DeleteProjectResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.elevation_possible) = true;
+  }
+}

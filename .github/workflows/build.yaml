@@ -1,0 +1,52 @@
+name: Build SDK
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Generate token
+        id: bot-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.TERRABASE_BOT_APP_ID }}
+          private-key: ${{ secrets.TERRABASE_BOT_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.bot-token.outputs.token }}
+
+      - name: Setup buf cli
+        uses: bufbuild/buf-setup-action@v1
+        with:
+          version: latest
+          github_token: ${{ github.token }}
+
+      - name: Generate
+        run: |
+          buf generate
+          buf build -o docs/descriptor.bin
+
+      - name: Commit and push
+        env:
+          GH_TOKEN: ${{ steps.bot-token.outputs.token }}
+        run: |
+          git config user.name "terrabase-dev-bot[app]"
+          git config user.email "123456+terrabase-dev-bot[app]@users.noreply.github.com"
+
+          git add specs/ ts/ docs/descriptor.bin
+          git diff --staged --quiet && exit 0
+
+          git commit -m "chore: regenerate specs [skip ci]"
+
+          git push \
+            https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git \
+            HEAD:${{ github.ref_name }}

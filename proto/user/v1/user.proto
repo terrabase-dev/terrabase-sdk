@@ -1,0 +1,269 @@
+syntax = "proto3";
+
+package user.v1;
+
+import "authz/v1/authz.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "user_role/v1/user_role.proto";
+
+option go_package = "github.com/terrabase-dev/terrabase-sdk/specs/user/v1;userv1";
+
+enum UserType {
+  // Default - should not use
+  USER_TYPE_UNSPECIFIED = 0;
+
+  // A human user
+  USER_TYPE_USER = 1;
+
+  // A bot user - perform actions in Terrabase
+  USER_TYPE_BOT = 2;
+
+  // A service principal - grant access to another application
+  USER_TYPE_SERVICE = 3;
+}
+
+// A Terrabase user is either a human user or a machine user. A machine user is either a bot or a service principal
+message User {
+  // The unique ID of the user
+  string id = 1;
+
+  // The user's first name
+  string first_name = 2;
+
+  // The user's last name. When not a human user, this will be the type of machine user.
+  string last_name = 3;
+
+  // The email address of the user, if a human user
+  string email = 4;
+
+  // The default role of the user
+  user_role.v1.UserRole default_role = 5;
+
+  // The type of the user (user, bot, or service)
+  UserType user_type = 6;
+
+  // The version of the user's profile picture, if they upload one
+  string profile_picture_version = 7;
+
+  // The time the user was created
+  google.protobuf.Timestamp created_at = 8;
+
+  // The user who created the user
+  string created_by = 9;
+
+  // The time the user was last updated at
+  google.protobuf.Timestamp updated_at = 10;
+
+  // The user who last updated the user
+  string updated_by = 11;
+
+  // The ID of the user that owns the machine user, if a machine user
+  optional string owner_user_id = 12;
+
+  // Whether or not the user has to reset their password on login
+  bool force_password_reset = 13;
+
+  // Whether or not the user has MFA enabled
+  bool mfa_enabled = 14;
+}
+
+// UserSummary is context aware
+message UserSummary {
+  // The ID of the user
+  string id = 1;
+
+  // The user's first name
+  string first_name = 2;
+
+  // The user's last_name. When not a human user, this will be the type of machine user.
+  string last_name = 3;
+
+  // The email address of the user, if a human user
+  optional string email = 4;
+
+  // The role the user has in the context in which the RPC returning this object (or list of objects) is called from
+  user_role.v1.UserRole role = 5;
+
+  // The version of the user's profile picture, if they upload one
+  optional string profile_picture_version = 6;
+
+  // The time the user was created
+  google.protobuf.Timestamp created_at = 7;
+
+  // The time the user was last updated at
+  google.protobuf.Timestamp updated_at = 8;
+
+  // The type of the user (user, bot, or service)
+  UserType user_type = 9;
+
+  // The ID of the user that owns the machine user, if a machine user
+  optional string owner_user_id = 10;
+
+  // Whether or not the user has MFA enabled
+  bool mfa_enabled = 11;
+}
+
+message GetUserRequest {
+  // The ID of the user
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetUserResponse {
+  // The user
+  User user = 1;
+}
+
+message ListUsersRequest {
+  // The number of users on each page of results
+  optional int32 page_size = 1;
+
+  // The token to retrieve the next page of results
+  optional string page_token = 2;
+
+  oneof context {
+    // The ID of the organization to list all users who belong to the organization
+    string organization_id = 3;
+
+    // The ID of the team to list all users who belong to the team
+    string team_id = 4;
+
+    // The ID of the workspace to list all users with access to the workspace
+    string workspace_id = 5;
+  }
+}
+
+message ListUsersResponse {
+  // A list of users
+  repeated UserSummary users = 1;
+
+  // The token to retrieve the next page of results
+  optional string next_page_token = 2;
+}
+
+message UpdateUserRequest {
+  // The unique ID of the user to update
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The user's new first name
+  optional string first_name = 2;
+
+  // The user's new last name
+  optional string last_name = 3;
+
+  // The new email address of the user
+  optional string email = 4;
+
+  // The new default role of the user
+  optional user_role.v1.UserRole default_role = 5;
+
+  // Used to remove a profile picture
+  optional string profile_picture_version = 6;
+
+  // Whether or not the user has to reset their password on login
+  optional bool force_password_reset = 7;
+}
+
+message UpdateUserResponse {
+  // The updated user
+  User user = 1;
+}
+
+message DeleteUserRequest {
+  // The unique ID of the user to delete
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DeleteUserResponse {}
+
+message GetProfilePictureUploadUrlRequest {
+  // The unique ID of the user to get a presigned URL for to upload their profile picture
+  string user_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The content type of the profile picture
+  string content_type = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetProfilePictureUploadUrlResponse {
+  // The presigned URL to upload a user's profile picture
+  string upload_url = 1;
+
+  // Headers to include when calling the presigned URL
+  map<string, string> headers = 2;
+
+  // The version of the profile picture (to be used in finalize)
+  string profile_picture_version = 3;
+}
+
+message FinalizeProfilePictureUploadRequest {
+  // The unique ID of the user to finalize the profile picture upload for
+  string user_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The version of the profile picture
+  string profile_picture_version = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message FinalizeProfilePictureUploadResponse {
+  // The user
+  User user = 1;
+}
+
+message GetProfilePictureUrlRequest {
+  // The unique ID of the user to get a presigned URL for to download their profile picture
+  string user_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetProfilePictureUrlResponse {
+  // The presigned URL to download a user's profile picture
+  string url = 1;
+}
+
+service UserService {
+  // Retrieve details about a single user
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.admin_or_self) = true;
+    option (authz.v1.owner_id_field) = "id";
+  }
+
+  // List users who belong to an organization or team, or who have access to a specific workspace
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+    option (authz.v1.required_scopes) = SCOPE_USER_READ;
+  }
+
+  // Change details about a user
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.admin_or_self) = true;
+    option (authz.v1.owner_id_field) = "id";
+  }
+
+  // Delete a user
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.required_scopes) = SCOPE_ADMIN;
+  }
+
+  // Get a presigned URL to upload a profile picture for a user
+  rpc GetProfilePictureUploadUrl(GetProfilePictureUploadUrlRequest) returns (GetProfilePictureUploadUrlResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.admin_or_self) = true;
+    option (authz.v1.owner_id_field) = "user_id";
+  }
+
+  // Finalize a profile picture upload
+  rpc FinalizeProfilePictureUpload(FinalizeProfilePictureUploadRequest) returns (FinalizeProfilePictureUploadResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.admin_or_self) = true;
+    option (authz.v1.owner_id_field) = "user_id";
+  }
+
+  // Get a presigned URL to download a profile picture for a user
+  rpc GetProfilePictureUrl(GetProfilePictureUrlRequest) returns (GetProfilePictureUrlResponse) {
+    option (authz.v1.auth_required) = true;
+    option (authz.v1.admin_or_self) = true;
+    option (authz.v1.owner_id_field) = "user_id";
+  }
+}

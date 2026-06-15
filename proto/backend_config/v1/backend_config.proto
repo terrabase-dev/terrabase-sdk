@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package backend_config.v1;
+
+import "s3_backend_config/v1/s3_backend_config.proto";
+
+option go_package = "github.com/terrabase-dev/terrabase-sdk/specs/backend_config/v1;backendConfigv1";
+
+enum BackendType {
+  // Default - should not be used
+  BACKEND_TYPE_UNSPECIFIED = 0;
+
+  // S3 backend
+  BACKEND_TYPE_S3 = 1;
+}
+
+message BackendConfig {
+  s3_backend_config.v1.S3BackendConfig s3 = 1;
+}
