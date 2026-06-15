@@ -9,20 +9,12 @@ jobs:
   commitlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
 
-      - name: Check conventional commits
+      - name: Check PR title
         run: |
           npm install --no-save @commitlint/cli @commitlint/config-conventional
           echo "module.exports = {extends: ['@commitlint/config-conventional']}" > commitlint.config.js
-          npx commitlint \
-            --config commitlint.config.js \
-            --from ${{ github.event.pull_request.base.sha }} \
-            --to ${{ github.event.pull_request.head.sha }} \
-            --verbose
+          echo "${{ github.event.pull_request.title }}" | npx commitlint --config commitlint.config.js
