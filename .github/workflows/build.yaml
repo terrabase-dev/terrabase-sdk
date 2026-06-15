@@ -2,8 +2,8 @@ name: Build SDK
 
 on:
   push:
-    branches:
-      - "**"
+    branches-ignore:
+      - main
   pull_request:
 
 jobs:

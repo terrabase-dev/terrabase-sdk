@@ -1,0 +1,75 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      pr: ${{ steps.release.outputs.pr }}
+    steps:
+      - name: Generate token
+        id: bot-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.TERRABASE_BOT_APP_ID }}
+          private-key: ${{ secrets.TERRABASE_BOT_PRIVATE_KEY }}
+
+      - id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ steps.bot-token.outputs.token }}
+          release-type: node
+
+  release-candidate:
+    needs: release-please
+    if: needs.release-please.outputs.release_created != 'true' && needs.release-please.outputs.pr != '' && needs.release-please.outputs.pr != 'null'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Generate token
+        id: bot-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.TERRABASE_BOT_APP_ID }}
+          private-key: ${{ secrets.TERRABASE_BOT_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.bot-token.outputs.token }}
+
+      - name: Get pending version from release PR
+        id: version
+        env:
+          PR_JSON: ${{ needs.release-please.outputs.pr }}
+        run: |
+          PR_BRANCH=$(echo "$PR_JSON" | jq -r '.headBranchName')
+          git fetch origin "$PR_BRANCH"
+          VERSION=$(git show "origin/$PR_BRANCH:package.json" | jq -r '.version')
+          echo "value=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Compute RC tag
+        id: rc-tag
+        run: |
+          VERSION=${{ steps.version.outputs.value }}
+          COUNT=$(git tag -l "v${VERSION}-rc.*" | wc -l | tr -d ' ')
+          echo "value=v${VERSION}-rc.$((COUNT + 1))" >> $GITHUB_OUTPUT
+
+      - name: Create RC release
+        env:
+          GH_TOKEN: ${{ steps.bot-token.outputs.token }}
+        run: |
+          gh release create ${{ steps.rc-tag.outputs.value }} \
+            --prerelease \
+            --title "${{ steps.rc-tag.outputs.value }}" \
+            --generate-notes

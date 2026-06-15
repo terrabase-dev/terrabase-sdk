@@ -1,9 +1,8 @@
 name: Publish SDK
 
 on:
-  push:
-    tags:
-      - "v*"
+  release:
+    types: [published]
 
 jobs:
   publish:
@@ -15,12 +14,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate-release-notes: true
-          files: docs/descriptor.bin
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -28,10 +21,17 @@ jobs:
           registry-url: "https://npm.pkg.github.com"
           scope: "@terrabase-dev"
 
-      - name: Set npm package version from tag
-        run: npm version ${GITHUB_REF_NAME} --no-git-tag-version
-
       - name: Publish npm package
-        run: npm publish
+        run: |
+          if [ "${{ github.event.release.prerelease }}" = "true" ]; then
+            npm publish --tag next
+          else
+            npm publish
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload descriptor to release
+        run: gh release upload ${{ github.ref_name }} docs/descriptor.bin
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
